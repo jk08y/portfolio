@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Sun, Moon, Menu, X, GithubIcon, LinkedinIcon, TwitterIcon, Instagram } from 'lucide-react';
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -16,15 +17,29 @@ const App = () => {
     { href: "#contact", label: "Contact" }
   ];
 
+  const ThemeToggle = () => (
+    <button 
+      onClick={() => setDarkMode(!darkMode)}
+      className="group relative flex items-center justify-between w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded-full p-1 transition-colors"
+      aria-label="Toggle Dark Mode"
+    >
+      <span 
+        className={`absolute w-6 h-6 bg-white dark:bg-gray-900 rounded-full shadow-md transition-transform 
+          ${darkMode ? 'translate-x-8' : 'translate-x-0'}`}
+      />
+      <Sun className={`w-4 h-4 text-yellow-500 ${darkMode ? 'opacity-50' : 'opacity-100'}`} />
+      <Moon className={`w-4 h-4 text-blue-600 ${darkMode ? 'opacity-100' : 'opacity-50'}`} />
+    </button>
+  );
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-      {/* Header */}
       <header className="fixed top-0 left-0 w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-sm z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="text-2xl font-bold tracking-tight dark:text-white">JK</div>
-          
+
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-6 items-center">
+          <nav className="hidden md:flex items-center space-x-6">
             {navigationLinks.map(({ href, label }) => (
               <a 
                 key={href} 
@@ -34,22 +49,20 @@ const App = () => {
                 {label}
               </a>
             ))}
-            <button 
-              onClick={() => setDarkMode(!darkMode)}
-              className="ml-4 text-xl focus:outline-none hover:rotate-12 transition-transform"
-              aria-label="Toggle Dark Mode"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
+            <ThemeToggle />
           </nav>
 
           {/* Mobile Menu Toggle */}
-          <button 
-            className="md:hidden focus:outline-none"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? '✕' : '☰'}
-          </button>
+          <div className="md:hidden flex items-center space-x-4">
+            <ThemeToggle />
+            <button 
+              className="focus:outline-none"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Mobile Menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Dropdown */}
@@ -66,29 +79,20 @@ const App = () => {
                   {label}
                 </a>
               ))}
-              <button 
-                onClick={() => {
-                  setDarkMode(!darkMode);
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                {darkMode ? '☀️' : '🌙'} Toggle Dark Mode
-              </button>
             </nav>
           </div>
         )}
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 pt-20">
-        {/* Hero Section */}
-        <section id="home" className="h-screen flex items-center justify-center text-center">
-          <div className="max-w-2xl mx-auto">
+      {/* Main Content with Reduced Top Padding */}
+      <main className="container mx-auto px-4 pt-16">
+        {/* Hero Section - Optimized for Responsiveness */}
+        <section id="home" className="min-h-screen flex items-center justify-center text-center py-12">
+          <div className="max-w-xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 dark:text-white tracking-tight">
-              Hi, I'm Jk
+              Hi, I'm JK
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
               Full Stack Developer crafting innovative web solutions with passion and precision.
             </p>
             <div className="flex justify-center space-x-4">
@@ -108,19 +112,19 @@ const App = () => {
           </div>
         </section>
 
-        {/* About Section */}
+        {/* About Section - Simplified */}
         <section id="about" className="py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white tracking-tight">About Me</h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                I'm a passionate developer specializing in creating responsive, user-centric web applications. 
-                With expertise in modern technologies, I transform complex challenges into elegant digital solutions.
+                Passionate developer transforming complex challenges into elegant digital solutions. 
+                Specializing in creating responsive, user-centric web applications with modern technologies.
               </p>
               <div className="grid md:grid-cols-2 gap-4">
                 {[
-                  { title: "Web Development", skills: "React, Next.js, Tailwind" },
-                  { title: "Backend", skills: "Python, Django, Flask" }
+                  { title: "Frontend", skills: "React, Next.js, Tailwind" },
+                  { title: "Backend", skills: "Python, Node.js, GraphQL" }
                 ].map(({ title, skills }) => (
                   <div key={title} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                     <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-2">{title}</h3>
@@ -135,16 +139,16 @@ const App = () => {
           </div>
         </section>
 
-        {/* Projects Section */}
+        {/* Projects Section - Enhanced */}
         <section id="projects" className="py-16">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 dark:text-white tracking-tight">
             Recent Projects
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { title: "Web Platform", description: "Responsive React Application" },
-              { title: "Backend System", description: "Scalable Django Project" },
-              { title: "Mobile Design", description: "Elegant Responsive Interface" }
+              { title: "Web Platform", description: "Advanced React Application" },
+              { title: "Backend System", description: "Scalable Microservices Architecture" },
+              { title: "Design System", description: "Comprehensive UI Component Library" }
             ].map((project, index) => (
               <div 
                 key={index} 
@@ -166,7 +170,7 @@ const App = () => {
           </div>
         </section>
 
-        {/* Footer */}
+        {/* Footer with Social Icons */}
         <footer className="py-8 border-t border-gray-200 dark:border-gray-700">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
@@ -176,13 +180,18 @@ const App = () => {
                 </p>
               </div>
               <div className="flex space-x-4">
-                {['GitHub', 'LinkedIn', 'Twitter', 'Instagram'].map((platform) => (
+                {[
+                  { icon: GithubIcon, href: "#" },
+                  { icon: LinkedinIcon, href: "#" },
+                  { icon: TwitterIcon, href: "#" },
+                  { icon: Instagram, href: "#" }
+                ].map(({ icon: Icon, href }) => (
                   <a 
-                    key={platform} 
-                    href="#" 
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
+                    key={href} 
+                    href={href} 
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
-                    {platform}
+                    <Icon className="w-5 h-5" />
                   </a>
                 ))}
               </div>
