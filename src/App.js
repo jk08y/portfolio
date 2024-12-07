@@ -1,12 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X, GithubIcon, LinkedinIcon, TwitterIcon, Instagram } from 'lucide-react';
+import { Github, Twitter, Sun, Moon } from 'lucide-react';
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
+    
+    const sections = document.querySelectorAll('section');
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.3
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      document.querySelectorAll('[data-scroll-speed]').forEach(element => {
+        const speed = parseFloat(element.getAttribute('data-scroll-speed'));
+        element.style.transform = `translateY(${scrollY * speed}px)`;
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [darkMode]);
 
   const navigationLinks = [
@@ -18,33 +51,79 @@ const App = () => {
   ];
 
   const ThemeToggle = () => (
-    <button 
+    <div 
       onClick={() => setDarkMode(!darkMode)}
-      className="group relative flex items-center justify-between w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded-full p-1 transition-colors"
+      className="cursor-pointer transition-transform hover:scale-110"
       aria-label="Toggle Dark Mode"
     >
-      <span 
-        className={`absolute w-6 h-6 bg-white dark:bg-gray-900 rounded-full shadow-md transition-transform 
-          ${darkMode ? 'translate-x-8' : 'translate-x-0'}`}
-      />
-      <Sun className={`w-4 h-4 text-yellow-500 ${darkMode ? 'opacity-50' : 'opacity-100'}`} />
-      <Moon className={`w-4 h-4 text-blue-600 ${darkMode ? 'opacity-100' : 'opacity-50'}`} />
-    </button>
+      {darkMode ? (
+        <Sun className="w-6 h-6 text-yellow-500 hover:rotate-12 transition-transform" />
+      ) : (
+        <Moon className="w-6 h-6 text-blue-600 hover:rotate-12 transition-transform" />
+      )}
+    </div>
+  );
+
+  const TechSkill = ({ name, level }) => (
+    <div className="flex items-center space-x-3 mb-2">
+      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+      <span className="text-gray-700 dark:text-gray-300">{name}</span>
+      <div className="flex-grow h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-blue-500 rounded-full" 
+          style={{ width: `${level}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+
+  const ProjectHighlight = ({ title, description, technologies, links }) => (
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow space-y-4">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
+      <p className="text-gray-600 dark:text-gray-400">{description}</p>
+      <div className="flex flex-wrap gap-2">
+        {technologies.map((tech, index) => (
+          <span 
+            key={index} 
+            className="px-2 py-1 bg-blue-50 dark:bg-gray-700 text-blue-600 dark:text-blue-300 text-xs rounded-full"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+      <div className="flex space-x-4">
+        {links.map(({ href, label, icon: Icon }) => (
+          <a 
+            key={label}
+            href={href} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <Icon className="mr-2 w-4 h-4" />
+            {label}
+          </a>
+        ))}
+      </div>
+    </div>
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <header className="fixed top-0 left-0 w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-sm z-50">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="text-2xl font-bold tracking-tight dark:text-white">JK</div>
-
-          {/* Desktop Navigation */}
+          
           <nav className="hidden md:flex items-center space-x-6">
             {navigationLinks.map(({ href, label }) => (
               <a 
                 key={href} 
                 href={href} 
-                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  activeSection === href.slice(1) 
+                    ? 'text-blue-600 dark:text-blue-400' 
+                    : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
+                }`}
               >
                 {label}
               </a>
@@ -52,20 +131,17 @@ const App = () => {
             <ThemeToggle />
           </nav>
 
-          {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center space-x-4">
             <ThemeToggle />
             <button 
               className="focus:outline-none"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle Mobile Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? '✕' : '☰'}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-gray-800 shadow-lg">
             <nav className="flex flex-col divide-y divide-gray-200 dark:divide-gray-700">
@@ -84,16 +160,14 @@ const App = () => {
         )}
       </header>
 
-      {/* Main Content with Reduced Top Padding */}
       <main className="container mx-auto px-4 pt-16">
-        {/* Hero Section - Optimized for Responsiveness */}
         <section id="home" className="min-h-screen flex items-center justify-center text-center py-12">
           <div className="max-w-xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 dark:text-white tracking-tight">
-              Hi, I'm JK
+              JK: Full Stack Developer
             </h1>
             <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-              Full Stack Developer crafting innovative web solutions with passion and precision.
+              Transforming ideas into elegant, efficient digital solutions with cutting-edge web technologies.
             </p>
             <div className="flex justify-center space-x-4">
               <a 
@@ -112,25 +186,29 @@ const App = () => {
           </div>
         </section>
 
-        {/* About Section - Simplified */}
         <section id="about" className="py-16">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white tracking-tight">About Me</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                Passionate developer transforming complex challenges into elegant digital solutions. 
-                Specializing in creating responsive, user-centric web applications with modern technologies.
-              </p>
-              <div className="grid md:grid-cols-2 gap-4">
-                {[
-                  { title: "Frontend", skills: "React, Next.js, Tailwind" },
-                  { title: "Backend", skills: "Python, Node.js, GraphQL" }
-                ].map(({ title, skills }) => (
-                  <div key={title} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-2">{title}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">{skills}</p>
-                  </div>
-                ))}
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white tracking-tight">
+                Technical Expertise
+              </h2>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-blue-600 dark:text-blue-400">
+                    Frontend Development
+                  </h3>
+                  <TechSkill name="React" level={90} />
+                  <TechSkill name="TypeScript" level={85} />
+                  <TechSkill name="Next.js" level={80} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-blue-600 dark:text-blue-400">
+                    Backend Development
+                  </h3>
+                  <TechSkill name="Node.js" level={85} />
+                  <TechSkill name="Python" level={75} />
+                  <TechSkill name="GraphQL" level={70} />
+                </div>
               </div>
             </div>
             <div className="flex justify-center">
@@ -139,38 +217,50 @@ const App = () => {
           </div>
         </section>
 
-        {/* Projects Section - Enhanced */}
         <section id="projects" className="py-16">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 dark:text-white tracking-tight">
-            Recent Projects
+            Featured Projects
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: "Web Platform", description: "Advanced React Application" },
-              { title: "Backend System", description: "Scalable Microservices Architecture" },
-              { title: "Design System", description: "Comprehensive UI Component Library" }
-            ].map((project, index) => (
-              <div 
-                key={index} 
-                className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2"
-              >
-                <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 mb-4 rounded-lg"></div>
-                <h3 className="text-xl font-bold mb-2 dark:text-white">{project.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">{project.description}</p>
-                <div className="flex space-x-4">
-                  <a href="#" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                    View Project
-                  </a>
-                  <a href="#" className="border border-blue-600 text-blue-600 dark:text-blue-400 px-4 py-2 rounded hover:bg-blue-600 hover:text-white text-sm">
-                    GitHub
-                  </a>
-                </div>
-              </div>
-            ))}
+            <ProjectHighlight 
+              title="Portfolio Website"
+              description="Responsive personal portfolio with advanced theme switching"
+              technologies={['React', 'Tailwind', 'Framer Motion']}
+              links={[
+                { 
+                  href: "https://github.com/yourusername/portfolio", 
+                  label: "GitHub",
+                  icon: Github
+                }
+              ]}
+            />
+            <ProjectHighlight 
+              title="E-Commerce Platform"
+              description="Full-stack e-commerce solution with advanced state management"
+              technologies={['Next.js', 'Redux', 'Stripe']}
+              links={[
+                { 
+                  href: "https://github.com/yourusername/ecommerce", 
+                  label: "GitHub",
+                  icon: Github
+                }
+              ]}
+            />
+            <ProjectHighlight 
+              title="Real-time Chat App"
+              description="Scalable messaging application with WebSocket integration"
+              technologies={['React', 'Node.js', 'Socket.io']}
+              links={[
+                { 
+                  href: "https://github.com/yourusername/chat-app", 
+                  label: "GitHub",
+                  icon: Github
+                }
+              ]}
+            />
           </div>
         </section>
 
-        {/* Footer with Social Icons */}
         <footer className="py-8 border-t border-gray-200 dark:border-gray-700">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center">
@@ -180,20 +270,22 @@ const App = () => {
                 </p>
               </div>
               <div className="flex space-x-4">
-                {[
-                  { icon: GithubIcon, href: "#" },
-                  { icon: LinkedinIcon, href: "#" },
-                  { icon: TwitterIcon, href: "#" },
-                  { icon: Instagram, href: "#" }
-                ].map(({ icon: Icon, href }) => (
-                  <a 
-                    key={href} 
-                    href={href} 
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    <Icon className="w-5 h-5" />
-                  </a>
-                ))}
+                <a 
+                  href="https://github.com/yourusername" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white"
+                >
+                  <Github className="w-5 h-5" />
+                </a>
+                <a 
+                  href="https://twitter.com/yourusername" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-400"
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
               </div>
             </div>
           </div>
